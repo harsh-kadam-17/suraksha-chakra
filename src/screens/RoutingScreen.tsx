@@ -194,26 +194,152 @@ function SecureMapContent({ handshakeStatus, senderLocation }: SecureMapContentP
 
   return (
     <>
-      {/* Sender's live location marker (teal) */}
+      {/* Sender's live location marker (Primary Purple) */}
       <AdvancedMarker position={senderLocation}>
-        <Pin background="#08122d" glyphColor="#5ae9ac" borderColor="#5ae9ac" />
+        <Pin background="#7d52b3" glyphColor="#ffffff" borderColor="#7d52b3" />
       </AdvancedMarker>
       {policeLocation && (
         <AdvancedMarker position={policeLocation}>
-          <Pin background="#3b82f6" glyphColor="#08122d" borderColor="#3b82f6" />
+          <Pin background="#3b82f6" glyphColor="#ffffff" borderColor="#3b82f6" />
         </AdvancedMarker>
       )}
       {hospitalLocation && (
         <AdvancedMarker position={hospitalLocation}>
-          <Pin background="#ef4444" glyphColor="#08122d" borderColor="#ef4444" />
+          <Pin background="#ef4444" glyphColor="#ffffff" borderColor="#ef4444" />
         </AdvancedMarker>
       )}
       {handshakeStatus === 'accepted' && legalLocation && (
         <AdvancedMarker position={legalLocation}>
-          <Pin background="#eab308" glyphColor="#08122d" borderColor="#eab308" />
+          <Pin background="#10b981" glyphColor="#ffffff" borderColor="#10b981" />
         </AdvancedMarker>
       )}
     </>
+  );
+}
+
+interface LeafletMapFallbackProps {
+  senderLocation: { lat: number; lng: number };
+  handshakeStatus: 'pending' | 'accepted';
+}
+
+function LeafletMapFallback({ senderLocation, handshakeStatus }: LeafletMapFallbackProps) {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+
+    const L = (window as any).L;
+    if (!L) {
+      console.warn("Leaflet library not loaded yet.");
+      return;
+    }
+
+    // Initialize map
+    const map = L.map(mapContainerRef.current, {
+      zoomControl: false,
+      attributionControl: false
+    }).setView([senderLocation.lat, senderLocation.lng], 14);
+    mapRef.current = map;
+
+    // CartoDB Positron Light tiles
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19
+    }).addTo(map);
+
+    // User/Sender marker: Pulsing amber circle
+    const userIcon = L.divIcon({
+      className: 'custom-user-marker',
+      html: `
+        <div class="relative w-8 h-8 flex items-center justify-center">
+          <div class="absolute w-8 h-8 rounded-full bg-[#ff9f1c]/30 animate-ping"></div>
+          <div class="absolute w-4 h-4 rounded-full bg-[#ff9f1c] border-2 border-white shadow-lg"></div>
+        </div>
+      `,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
+
+    // Custom emergency icons
+    const createEmergencyIcon = (color: string, letter: string) => L.divIcon({
+      className: 'custom-emergency-marker',
+      html: `
+        <div class="w-8 h-8 rounded-full flex flex-col items-center justify-center border-2 border-white shadow-lg text-white font-bold text-xs" style="background-color: ${color}">
+          ${letter}
+        </div>
+      `,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
+
+    // Add user marker
+    L.marker([senderLocation.lat, senderLocation.lng], { icon: userIcon })
+      .bindPopup("<div style='padding: 2px 6px;'><b>Your Current Location</b><br/>Transmitting live telemetry...</div>")
+      .addTo(map);
+
+    // Calculated offsets for mock nearby safe zones
+    const policeLoc: [number, number] = [senderLocation.lat + 0.0035, senderLocation.lng - 0.003];
+    const hospitalLoc: [number, number] = [senderLocation.lat - 0.0025, senderLocation.lng + 0.004];
+    const legalLoc: [number, number] = [senderLocation.lat + 0.0018, senderLocation.lng + 0.0032];
+
+    // Add Police Station marker
+    L.marker(policeLoc, { icon: createEmergencyIcon('#FF5449', 'P') })
+      .bindPopup("<div style='padding: 2px 6px;'><b>Police Station (Safe Zone)</b><br/>Primary routing node connected.</div>")
+      .addTo(map);
+
+    // Add Hospital marker
+    L.marker(hospitalLoc, { icon: createEmergencyIcon('#FFBF1C', 'H') })
+      .bindPopup("<div style='padding: 2px 6px;'><b>Emergency Hospital</b><br/>Medical emergency node active.</div>")
+      .addTo(map);
+
+    // Add Legal Aid Clinic marker
+    const legalMarker = L.marker(legalLoc, { icon: createEmergencyIcon('#5ae9ac', 'L') })
+      .bindPopup(handshakeStatus === 'pending'
+        ? "<div style='padding: 2px 6px;'><b>Legal Clinic</b><br/>Awaiting secure handshake...</div>"
+        : "<div style='padding: 2px 6px;'><b>Legal Clinic (Connected)</b><br/>Secure handshake established.</div>")
+      .addTo(map);
+
+    // Draw route polylines connecting user to safe zones
+    const routeToPolice = L.polyline([[senderLocation.lat, senderLocation.lng], policeLoc], {
+      color: '#FF5449',
+      weight: 3,
+      opacity: 0.7,
+      dashArray: '4, 8'
+    }).addTo(map);
+
+    const routeToHospital = L.polyline([[senderLocation.lat, senderLocation.lng], hospitalLoc], {
+      color: '#FFBF1C',
+      weight: 3,
+      opacity: 0.7,
+      dashArray: '4, 8'
+    }).addTo(map);
+
+    let routeToLegal: any = null;
+    if (handshakeStatus === 'accepted') {
+      routeToLegal = L.polyline([[senderLocation.lat, senderLocation.lng], legalLoc], {
+        color: '#5ae9ac',
+        weight: 3,
+        opacity: 0.8,
+        dashArray: '4, 8'
+      }).addTo(map);
+    }
+
+    // Adjust map bounds to include all markers
+    const bounds = L.latLngBounds([
+      [senderLocation.lat, senderLocation.lng],
+      policeLoc,
+      hospitalLoc,
+      legalLoc
+    ]);
+    map.fitBounds(bounds, { padding: [30, 30] });
+
+    return () => {
+      map.remove();
+    };
+  }, [senderLocation, handshakeStatus]);
+
+  return (
+    <div ref={mapContainerRef} className="w-full h-full min-h-[250px]" />
   );
 }
 
@@ -324,7 +450,7 @@ export function RoutingScreen({ signalId, signalLocation }: RoutingScreenProps) 
                 defaultCenter={senderLocation}
                 defaultZoom={15}
                 mapId="DEMO_MAP_ID"
-                colorScheme="DARK"
+                colorScheme="LIGHT"
                 internalUsageAttributionIds={['gmp_mcp_codeassist_v1_aistudio']}
                 style={{ width: '100%', height: '100%' }}
                 disableDefaultUI={true}
@@ -347,18 +473,24 @@ export function RoutingScreen({ signalId, signalLocation }: RoutingScreenProps) 
             </div>
           </>
         ) : (
-          <div className="text-center max-w-lg z-20 bg-surface/90 backdrop-blur-sm p-6 rounded-2xl border border-white/10 m-4">
-            <h2 className="text-xl font-bold text-on-surface mb-4">Google Maps API Key Required</h2>
-            <p className="text-on-surface-variant mb-4 text-sm">The map shows a "development purposes only" watermark because it requires a valid Google Maps API Key to run properly.</p>
-            <p className="text-on-surface mb-2 font-medium text-sm">To add your API key:</p>
-            <ul className="text-left text-on-surface-variant space-y-2 mb-4 text-sm list-disc pl-5">
-              <li>Open <strong>Settings</strong> (⚙️ gear icon, <strong>top-right corner</strong>)</li>
-              <li>Select <strong>Secrets</strong></li>
-              <li>Type <code>GOOGLE_MAPS_PLATFORM_KEY</code> as the secret name, press <strong>Enter</strong></li>
-              <li>Paste your Google Maps API key as the value, press <strong>Enter</strong></li>
-            </ul>
-            <p className="text-sm text-tertiary font-semibold mt-4">The app will rebuild automatically after you add the secret.</p>
-          </div>
+          <>
+            <LeafletMapFallback
+              senderLocation={senderLocation}
+              handshakeStatus={handshakeStatus}
+            />
+            <div className="absolute inset-x-0 bottom-0 h-32 map-overlay-gradient pointer-events-none z-10" />
+
+            <div className="absolute inset-0 pointer-events-none p-4 md:p-8 flex flex-col justify-between pt-24 md:pt-8 z-20">
+              <div className="glass-panel self-start rounded-full px-4 py-2 flex items-center space-x-2 pointer-events-auto shadow-lg backdrop-blur-md">
+                <MapPin className="text-tertiary" size={16} />
+                <span className="text-[12px] font-bold text-on-surface tracking-wide uppercase">OpenStreetMap Secure Fallback Active</span>
+              </div>
+              
+              <div className="glass-panel self-center rounded-xl p-3 px-4 text-center pointer-events-auto shadow-lg backdrop-blur-md border border-primary/20 text-xs font-semibold text-primary max-w-xs md:max-w-md">
+                ℹ️ Running in open-source fallback. Configure <code>VITE_GOOGLE_MAPS_PLATFORM_KEY</code> in <code>.env</code> for Google Maps.
+              </div>
+            </div>
+          </>
         )}
       </div>
 

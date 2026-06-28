@@ -2,42 +2,43 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #08122d;
-  --color-on-background: #dbe1ff;
+  --color-background: #fcf9fe;
+  --color-on-background: #1c132d;
   
-  --color-surface: #08122d;
-  --color-surface-dim: #08122d;
-  --color-surface-bright: #2f3855;
-  --color-surface-container-lowest: #030c28;
-  --color-surface-container-low: #111a36;
-  --color-surface-container: #151e3a;
-  --color-surface-container-high: #202945;
-  --color-surface-container-highest: #2b3450;
+  --color-surface: #ffffff;
+  --color-surface-dim: #f5f0f9;
+  --color-surface-bright: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f7f2fa;
+  --color-surface-container: #f3edf7;
+  --color-surface-container-high: #ece6f0;
+  --color-surface-container-highest: #e6e1e5;
   
-  --color-on-surface: #dbe1ff;
-  --color-on-surface-variant: #dac2ae;
+  --color-on-surface: #1c132d;
+  --color-on-surface-variant: #49454f;
   
-  --color-primary: #ffc68b;
-  --color-on-primary: #492900;
-  --color-primary-container: #ff9f1c;
-  --color-on-primary-container: #683c00;
+  --color-primary: #7d52b3;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #eaddff;
+  --color-on-primary-container: #21005d;
   
-  --color-tertiary: #5ae9ac;
-  --color-on-tertiary: #003824;
-  --color-tertiary-container: #36cc92;
+  --color-tertiary: #2e6b3b;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #b3f3b9;
   
-  --color-error: #ffb4ab;
-  --color-on-error: #690005;
-  --color-error-container: #93000a;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
   
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer utilities {
   .glass-panel {
-    background: rgba(28, 37, 65, 0.4);
+    background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(125, 82, 179, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(103, 80, 164, 0.05);
   }
   .map-overlay-gradient {
     background: linear-gradient(to bottom, transparent 0%, var(--color-background) 100%);
@@ -49,4 +50,35 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  
+  /* Leaflet light theme & custom marker styling overrides */
+  .leaflet-container {
+    background: #f3edf7 !important;
+    font-family: "Inter", sans-serif;
+  }
+  .leaflet-popup-content-wrapper {
+    background: #ffffff !important;
+    color: #1c132d !important;
+    border: 1px solid rgba(125, 82, 179, 0.15);
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(103, 80, 164, 0.1) !important;
+    padding: 4px;
+  }
+  .leaflet-popup-tip {
+    background: #ffffff !important;
+    border: 1px solid rgba(125, 82, 179, 0.15);
+  }
+  .leaflet-popup-close-button {
+    color: #49454f !important;
+    padding: 8px 10px 0 0 !important;
+  }
+  .custom-user-marker {
+    background: transparent !important;
+    border: none !important;
+  }
+  .custom-emergency-marker {
+    background: transparent !important;
+    border: none !important;
+  }
 }
+

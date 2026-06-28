@@ -71,7 +71,7 @@ export function HubScreen({ onAction }: { onAction: (signalId: string, location:
           className={`px-5 py-2.5 rounded-full font-bold flex items-center gap-2 shadow-[0_4px_14px_rgba(255,159,28,0.2)] hover:scale-105 active:scale-95 transition-all ${
             isRecording
               ? 'bg-error text-on-error shadow-[0_4px_14px_rgba(255,84,73,0.4)]'
-              : 'bg-primary-container text-[#08122d]'
+              : 'bg-primary-container text-on-primary-container'
           } disabled:opacity-60 disabled:cursor-not-allowed`}
         >
           {isSending ? (
@@ -142,6 +142,56 @@ export function HubScreen({ onAction }: { onAction: (signalId: string, location:
         <p className="text-[12px] font-medium tracking-wide text-on-surface-variant/70 text-center mt-2">
           Entries are locally encrypted
         </p>
+      </div>
+
+      {/* Emergency Helplines Section */}
+      <div className="w-full max-w-md mt-6 glass-panel rounded-xl p-5 flex flex-col gap-3 shadow-lg border border-white/5 bg-surface-container/30">
+        <h3 className="text-sm font-bold text-[#ff5449] uppercase tracking-wider flex items-center gap-2">
+          <AlertTriangle size={16} />
+          Emergency Hotlines
+        </h3>
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          <a
+            href="tel:112"
+            className="flex items-center justify-between p-3 rounded-lg bg-surface-container-high hover:bg-white/5 border border-white/5 transition-colors group"
+          >
+            <div>
+              <p className="text-[10px] text-on-surface-variant font-medium">National Emergency</p>
+              <p className="text-sm font-bold text-on-surface">112</p>
+            </div>
+            <span className="text-xs text-[#ff5449] font-semibold bg-[#ff5449]/10 px-2 py-0.5 rounded border border-[#ff5449]/20 group-hover:scale-105 transition-transform">CALL</span>
+          </a>
+          <a
+            href="tel:1091"
+            className="flex items-center justify-between p-3 rounded-lg bg-surface-container-high hover:bg-white/5 border border-white/5 transition-colors group"
+          >
+            <div>
+              <p className="text-[10px] text-on-surface-variant font-medium">Women Helpline</p>
+              <p className="text-sm font-bold text-on-surface">1091</p>
+            </div>
+            <span className="text-xs text-[#ff5449] font-semibold bg-[#ff5449]/10 px-2 py-0.5 rounded border border-[#ff5449]/20 group-hover:scale-105 transition-transform">CALL</span>
+          </a>
+          <a
+            href="tel:181"
+            className="flex items-center justify-between p-3 rounded-lg bg-surface-container-high hover:bg-white/5 border border-white/5 transition-colors group"
+          >
+            <div>
+              <p className="text-[10px] text-on-surface-variant font-medium">Domestic Abuse</p>
+              <p className="text-sm font-bold text-on-surface">181</p>
+            </div>
+            <span className="text-xs text-[#ff5449] font-semibold bg-[#ff5449]/10 px-2 py-0.5 rounded border border-[#ff5449]/20 group-hover:scale-105 transition-transform">CALL</span>
+          </a>
+          <a
+            href="tel:100"
+            className="flex items-center justify-between p-3 rounded-lg bg-surface-container-high hover:bg-white/5 border border-white/5 transition-colors group"
+          >
+            <div>
+              <p className="text-[10px] text-on-surface-variant font-medium">Police Station</p>
+              <p className="text-sm font-bold text-on-surface">100</p>
+            </div>
+            <span className="text-xs text-[#ff5449] font-semibold bg-[#ff5449]/10 px-2 py-0.5 rounded border border-[#ff5449]/20 group-hover:scale-105 transition-transform">CALL</span>
+          </a>
+        </div>
       </div>
     </div>
   );
