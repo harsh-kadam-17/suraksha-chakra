@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Make sure we have a catch-all block just in case to close it down
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /signals/{signalId} {
+      // For a real app, we would restrict this to authenticated users.
+      // Since there's no auth yet, allow public access for demonstration.
+      allow read, create, update: if true;
+      allow delete: if false;
+    }
+  }
+}

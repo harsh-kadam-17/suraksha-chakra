@@ -1,0 +1,39 @@
+{
+  "collections": {
+    "signals": {
+      "description": "SOS emergency signals created by the user.",
+      "securityRules": {
+        "read": "true",
+        "create": "true",
+        "update": "true",
+        "delete": "false"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status of the signal ('pending', 'accepted', 'resolved')",
+            "example": "pending"
+          },
+          "location": {
+            "type": "geopoint",
+            "description": "The GPS location of the user",
+            "example": "[28.6139, 77.2090]"
+          },
+          "createdAt": {
+            "type": "timestamp",
+            "description": "When the signal was created",
+            "example": "2024-03-24T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "timestamp",
+            "description": "When the signal was last updated",
+            "example": "2024-03-24T12:05:00Z"
+          }
+        },
+        "required": ["status", "createdAt"]
+      }
+    }
+  }
+}

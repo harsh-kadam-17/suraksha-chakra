@@ -1,0 +1,9 @@
+{
+  "name": "Suraksha-Chakra",
+  "description": "A forensic safety utility with encrypted voice intake, geolocation tracking, and dynamic secure routing.",
+  "requestFramePermissions": [
+    "geolocation",
+    "microphone"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
