@@ -28,23 +28,19 @@ export function HubScreen({ onAction }: { onAction: (signalId: string, location:
   const sendSignal = async (type: 'voice' | 'text' | 'sos', message?: string) => {
     if (isSending) return;
     setIsSending(true);
-    try {
-      const location = await getDeviceLocation();
-      const docRef = await addDoc(collection(db, 'signals'), {
-        status: 'pending',
-        type,
-        message: message || '',
-        location,
-        createdAt: serverTimestamp(),
-      });
-      onAction(docRef.id, location);
-    } catch (err) {
-      console.error('Error creating signal:', err);
-      // Still navigate even if Firestore fails
-      onAction('', DEFAULT_LOC);
-    } finally {
-      setIsSending(false);
-    }
+    // 1. Get real GPS location immediately
+    const location = await getDeviceLocation();
+    // 2. Navigate to map right away with real GPS — don't wait for Firebase
+    onAction('local-' + Date.now(), location);
+    setIsSending(false);
+    // 3. Save signal to Firebase in the background (non-blocking)
+    addDoc(collection(db, 'signals'), {
+      status: 'pending',
+      type,
+      message: message || '',
+      location,
+      createdAt: serverTimestamp(),
+    }).catch((err) => console.warn('Firebase signal save failed:', err));
   };
 
   const handleVoiceToggle = () => {

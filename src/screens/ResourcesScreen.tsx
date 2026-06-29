@@ -47,6 +47,30 @@ const RESOURCES_DATA: ResourceData[] = [
     ]
   },
   {
+    title: "Essential Safety Gadgets & EDC",
+    description: "Must-have everyday carry (EDC) items and gadgets to keep with you while traveling for personal protection.",
+    type: "method",
+    details: "Carrying the right safety gadgets can provide a crucial advantage in an emergency. These items should be easily accessible, legal to carry in your area, and you should be familiar with how to use them under pressure.",
+    steps: [
+      "Pepper Spray or Mace: Keep it on a keychain or in a readily accessible pocket, not buried in a bag. Practice using the safety lock.",
+      "Personal Safety Alarm: A loud 130dB siren alarm can deter attackers and draw attention. Some have flashing strobe lights.",
+      "Tactical Pen or Kubotan: A sturdy, legal self-defense tool that can be used to strike pressure points or break glass in an emergency.",
+      "Portable Power Bank & Whistle: A dead phone is a major vulnerability. Always carry a power bank. A standard physical whistle is a reliable low-tech backup."
+    ]
+  },
+  {
+    title: "Basic Self-Defense Moves",
+    description: "Critical, easy-to-remember physical defense techniques that everyone should know to escape an attacker.",
+    type: "method",
+    details: "The goal of self-defense is not to win a fight, but to create an opportunity to escape. Focus on vulnerable targets and use your body's strongest points.",
+    steps: [
+      "The Heel Palm Strike: Use the hard base of your palm to strike upward at the attacker's nose or chin. Keep your fingers curled back to avoid breaking them.",
+      "Knee Strike: If grabbed from the front, drive your knee forcefully into the groin area. This is highly effective and requires little training.",
+      "Wrist Release: If your wrist is grabbed, rotate your arm so you pull against the weakest point of their grip—the gap between their thumb and fingers.",
+      "Elbow Strike: If attacked from behind or close range, a backward or sideways elbow strike to the face or ribs is extremely powerful."
+    ]
+  },
+  {
     title: "Understanding Your Legal Rights",
     description: "A comprehensive guide to protective orders, restraining orders, and legal recourse.",
     type: "article",

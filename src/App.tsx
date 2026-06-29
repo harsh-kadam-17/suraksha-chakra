@@ -14,10 +14,16 @@ export default function App() {
   const [activeSignalId, setActiveSignalId] = useState<string | null>(null);
   const [activeSignalLocation, setActiveSignalLocation] = useState<SignalLocation | null>(null);
 
+  const wipeSession = () => {
+    setActiveSignalId(null);
+    setActiveSignalLocation(null);
+    setCurrentScreen('hub');
+  };
+
   const handleHubAction = (signalId: string, location: SignalLocation) => {
     setActiveSignalId(signalId || null);
     setActiveSignalLocation(location);
-    setCurrentScreen('forensic');
+    setCurrentScreen('routing');
   };
 
   // Forensic screen is an immersive overlay that hides standard navigation
@@ -34,17 +40,17 @@ export default function App() {
     <div className="bg-background text-on-background min-h-screen flex flex-col md:flex-row antialiased select-none font-sans overflow-hidden">
       {/* Desktop Navigation */}
       <div className="hidden md:block">
-        <Navigation currentScreen={currentScreen} onNavigate={setCurrentScreen} />
+        <Navigation currentScreen={currentScreen} onNavigate={setCurrentScreen} onWipeSession={wipeSession} />
       </div>
 
       <main className="flex-1 flex flex-col relative min-h-screen w-full md:ml-64">
         {/* Top Bar for Mobile & Desktop (except routing which has special mobile header) */}
-        {currentScreen !== 'routing' && <TopBar onNavigate={setCurrentScreen} />}
+        {currentScreen !== 'routing' && <TopBar onNavigate={setCurrentScreen} currentScreen={currentScreen} />}
 
         <div className="flex-1 overflow-y-auto pb-[90px] md:pb-0 relative hide-scrollbar">
           {currentScreen === 'hub' && <HubScreen onAction={handleHubAction} />}
           {currentScreen === 'routing' && (
-            <RoutingScreen signalId={activeSignalId} signalLocation={activeSignalLocation} />
+            <RoutingScreen signalId={activeSignalId} signalLocation={activeSignalLocation} onWipeSession={wipeSession} />
           )}
           {currentScreen === 'resources' && <ResourcesScreen />}
           {currentScreen === 'settings' && <SettingsScreen />}
@@ -53,7 +59,7 @@ export default function App() {
 
         {/* Mobile Navigation */}
         <div className="md:hidden">
-          <Navigation currentScreen={currentScreen} onNavigate={setCurrentScreen} />
+          <Navigation currentScreen={currentScreen} onNavigate={setCurrentScreen} onWipeSession={wipeSession} />
         </div>
       </main>
     </div>

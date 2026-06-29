@@ -242,7 +242,7 @@ function LeafletMapFallback({ senderLocation, handshakeStatus }: LeafletMapFallb
     }).setView([senderLocation.lat, senderLocation.lng], 14);
     mapRef.current = map;
 
-    // CartoDB Positron Light tiles
+    // CartoDB Positron (white/light tiles)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19
     }).addTo(map);
@@ -251,9 +251,9 @@ function LeafletMapFallback({ senderLocation, handshakeStatus }: LeafletMapFallb
     const userIcon = L.divIcon({
       className: 'custom-user-marker',
       html: `
-        <div class="relative w-8 h-8 flex items-center justify-center">
-          <div class="absolute w-8 h-8 rounded-full bg-[#ff9f1c]/30 animate-ping"></div>
-          <div class="absolute w-4 h-4 rounded-full bg-[#ff9f1c] border-2 border-white shadow-lg"></div>
+        <div style="position:relative;width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+          <div style="position:absolute;width:32px;height:32px;border-radius:50%;background:rgba(255,159,28,0.3);animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>
+          <div style="position:absolute;width:16px;height:16px;border-radius:50%;background:#ff9f1c;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.5);"></div>
         </div>
       `,
       iconSize: [32, 32],
@@ -264,74 +264,103 @@ function LeafletMapFallback({ senderLocation, handshakeStatus }: LeafletMapFallb
     const createEmergencyIcon = (color: string, letter: string) => L.divIcon({
       className: 'custom-emergency-marker',
       html: `
-        <div class="w-8 h-8 rounded-full flex flex-col items-center justify-center border-2 border-white shadow-lg text-white font-bold text-xs" style="background-color: ${color}">
+        <div style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2.5px solid white;box-shadow:0 3px 10px rgba(0,0,0,0.5);color:white;font-weight:bold;font-size:13px;background:${color};">
           ${letter}
         </div>
       `,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16]
+      iconSize: [34, 34],
+      iconAnchor: [17, 17]
     });
 
     // Add user marker
     L.marker([senderLocation.lat, senderLocation.lng], { icon: userIcon })
-      .bindPopup("<div style='padding: 2px 6px;'><b>Your Current Location</b><br/>Transmitting live telemetry...</div>")
+      .bindPopup("<div style='padding:4px 8px;font-family:sans-serif;'><b>📍 Your Live Location</b><br/><span style='font-size:11px;color:#888;'>Transmitting securely...</span></div>")
       .addTo(map);
 
-    // Calculated offsets for mock nearby safe zones
-    const policeLoc: [number, number] = [senderLocation.lat + 0.0035, senderLocation.lng - 0.003];
-    const hospitalLoc: [number, number] = [senderLocation.lat - 0.0025, senderLocation.lng + 0.004];
-    const legalLoc: [number, number] = [senderLocation.lat + 0.0018, senderLocation.lng + 0.0032];
+    // --- Helper: fetch real road route from OSRM and draw on map ---
+    const drawRealRoute = async (
+      from: [number, number],
+      to: [number, number],
+      color: string
+    ) => {
+      try {
+        const url = `https://router.project-osrm.org/route/v1/driving/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.code === 'Ok' && data.routes?.[0]) {
+          const coords: [number, number][] = data.routes[0].geometry.coordinates.map(
+            ([lng, lat]: [number, number]) => [lat, lng]
+          );
+          L.polyline(coords, { color, weight: 5, opacity: 0.9 }).addTo(map);
+        }
+      } catch (e) {
+        console.warn('OSRM routing failed:', e);
+      }
+    };
 
-    // Add Police Station marker
-    L.marker(policeLoc, { icon: createEmergencyIcon('#FF5449', 'P') })
-      .bindPopup("<div style='padding: 2px 6px;'><b>Police Station (Safe Zone)</b><br/>Primary routing node connected.</div>")
-      .addTo(map);
+    // --- Helper: fetch nearest place via Overpass API ---
+    const fetchNearestPlace = async (amenity: string): Promise<{ coords: [number, number]; name: string } | null> => {
+      try {
+        const { lat, lng } = senderLocation;
+        const query = `[out:json][timeout:15];(node["amenity"="${amenity}"](around:5000,${lat},${lng});way["amenity"="${amenity}"](around:5000,${lat},${lng}););out center 1;`;
+        const res = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (data.elements?.length > 0) {
+          const el = data.elements[0];
+          const elLat = el.lat ?? el.center?.lat;
+          const elLng = el.lon ?? el.center?.lon;
+          if (elLat && elLng) return { coords: [elLat, elLng], name: el.tags?.name || null };
+        }
+      } catch (e) {
+        console.warn(`Overpass fetch failed for ${amenity}:`, e);
+      }
+      return null;
+    };
 
-    // Add Hospital marker
-    L.marker(hospitalLoc, { icon: createEmergencyIcon('#FFBF1C', 'H') })
-      .bindPopup("<div style='padding: 2px 6px;'><b>Emergency Hospital</b><br/>Medical emergency node active.</div>")
-      .addTo(map);
+    // --- Main: find real places and draw real road routes ---
+    const userCoords: [number, number] = [senderLocation.lat, senderLocation.lng];
 
-    // Add Legal Aid Clinic marker
-    const legalMarker = L.marker(legalLoc, { icon: createEmergencyIcon('#5ae9ac', 'L') })
-      .bindPopup(handshakeStatus === 'pending'
-        ? "<div style='padding: 2px 6px;'><b>Legal Clinic</b><br/>Awaiting secure handshake...</div>"
-        : "<div style='padding: 2px 6px;'><b>Legal Clinic (Connected)</b><br/>Secure handshake established.</div>")
-      .addTo(map);
+    const setupMap = async () => {
+      const [policeResult, hospitalResult, legalResult] = await Promise.all([
+        fetchNearestPlace('police'),
+        fetchNearestPlace('hospital'),
+        fetchNearestPlace('courthouse'),
+      ]);
 
-    // Draw route polylines connecting user to safe zones
-    const routeToPolice = L.polyline([[senderLocation.lat, senderLocation.lng], policeLoc], {
-      color: '#FF5449',
-      weight: 3,
-      opacity: 0.7,
-      dashArray: '4, 8'
-    }).addTo(map);
+      const policeLoc  = policeResult?.coords   ?? [senderLocation.lat + 0.0035, senderLocation.lng - 0.003] as [number, number];
+      const hospitalLoc = hospitalResult?.coords ?? [senderLocation.lat - 0.0025, senderLocation.lng + 0.004] as [number, number];
+      const legalLoc   = legalResult?.coords    ?? [senderLocation.lat + 0.0018, senderLocation.lng + 0.0032] as [number, number];
 
-    const routeToHospital = L.polyline([[senderLocation.lat, senderLocation.lng], hospitalLoc], {
-      color: '#FFBF1C',
-      weight: 3,
-      opacity: 0.7,
-      dashArray: '4, 8'
-    }).addTo(map);
+      const policeName   = policeResult?.name   ?? 'Nearest Police Station';
+      const hospitalName = hospitalResult?.name ?? 'Nearest Hospital';
+      const legalName    = legalResult?.name    ?? 'Legal Aid Clinic';
 
-    let routeToLegal: any = null;
-    if (handshakeStatus === 'accepted') {
-      routeToLegal = L.polyline([[senderLocation.lat, senderLocation.lng], legalLoc], {
-        color: '#5ae9ac',
-        weight: 3,
-        opacity: 0.8,
-        dashArray: '4, 8'
-      }).addTo(map);
-    }
+      L.marker(policeLoc, { icon: createEmergencyIcon('#FF5449', 'P') })
+        .bindPopup(`<div style='padding:4px 8px;font-family:sans-serif;'><b>🚔 ${policeName}</b><br/><span style='font-size:11px;color:#888;'>Police Station · Emergency Route Active</span></div>`)
+        .addTo(map);
 
-    // Adjust map bounds to include all markers
-    const bounds = L.latLngBounds([
-      [senderLocation.lat, senderLocation.lng],
-      policeLoc,
-      hospitalLoc,
-      legalLoc
-    ]);
-    map.fitBounds(bounds, { padding: [30, 30] });
+      L.marker(hospitalLoc, { icon: createEmergencyIcon('#FFBF1C', 'H') })
+        .bindPopup(`<div style='padding:4px 8px;font-family:sans-serif;'><b>🏥 ${hospitalName}</b><br/><span style='font-size:11px;color:#888;'>Hospital · Medical Route Active</span></div>`)
+        .addTo(map);
+
+      L.marker(legalLoc, { icon: createEmergencyIcon('#5ae9ac', 'L') })
+        .bindPopup(handshakeStatus === 'pending'
+          ? `<div style='padding:4px 8px;font-family:sans-serif;'><b>⚖️ ${legalName}</b><br/><span style='font-size:11px;color:#888;'>Awaiting secure handshake...</span></div>`
+          : `<div style='padding:4px 8px;font-family:sans-serif;'><b>⚖️ ${legalName}</b><br/><span style='font-size:11px;color:#5ae9ac;'>Secure handshake established ✓</span></div>`)
+        .addTo(map);
+
+      // Draw real road-following routes via OSRM
+      await Promise.all([
+        drawRealRoute(userCoords, policeLoc, '#FF5449'),
+        drawRealRoute(userCoords, hospitalLoc, '#FFBF1C'),
+        ...(handshakeStatus === 'accepted' ? [drawRealRoute(userCoords, legalLoc, '#5ae9ac')] : []),
+      ]);
+
+      const bounds = L.latLngBounds([userCoords, policeLoc, hospitalLoc, legalLoc]);
+      map.fitBounds(bounds, { padding: [50, 50] });
+    };
+
+    setupMap();
 
     return () => {
       map.remove();
@@ -346,11 +375,14 @@ function LeafletMapFallback({ senderLocation, handshakeStatus }: LeafletMapFallb
 interface RoutingScreenProps {
   signalId: string | null;
   signalLocation: SignalLocation | null;
+  onWipeSession: () => void;
 }
 
-export function RoutingScreen({ signalId, signalLocation }: RoutingScreenProps) {
+export function RoutingScreen({ signalId, signalLocation, onWipeSession }: RoutingScreenProps) {
   const [handshakeStatus, setHandshakeStatus] = useState<'pending' | 'accepted'>('pending');
   const [activeSignalId, setActiveSignalId] = useState<string | null>(signalId);
+  // Auto-wipe countdown: 5 minutes = 300 seconds
+  const [countdown, setCountdown] = useState(300);
 
   // Resolved sender location: prefer Firestore-backed location, fall back to prop, then default
   const [senderLocation, setSenderLocation] = useState<google.maps.LatLngLiteral>(
@@ -359,6 +391,13 @@ export function RoutingScreen({ signalId, signalLocation }: RoutingScreenProps) 
 
   // If signalId already exists (passed from HubScreen), read its location from Firestore
   useEffect(() => {
+    // 'local-*' IDs mean Firebase save is pending/failed — use signalLocation prop directly
+    if (signalId && signalId.startsWith('local-')) {
+      if (signalLocation) setSenderLocation(signalLocation);
+      setActiveSignalId(signalId);
+      return;
+    }
+
     if (!signalId) {
       // No existing signal — create a new one for direct navigation to routing
       const createSignal = async () => {
@@ -411,6 +450,21 @@ export function RoutingScreen({ signalId, signalLocation }: RoutingScreenProps) 
   useEffect(() => {
     if (!activeSignalId) return;
 
+    // For demonstration: simulate a dispatcher accepting after 4 seconds
+    const timer = setTimeout(() => {
+      setHandshakeStatus('accepted');
+      // Also try to update Firestore if it's a real signal ID
+      if (!activeSignalId.startsWith('local-')) {
+        updateDoc(doc(db, 'signals', activeSignalId), { status: 'accepted' })
+          .catch((err) => console.warn('Could not update Firestore handshake:', err));
+      }
+    }, 4000);
+
+    // Only listen to Firestore for real (non-local) signal IDs
+    if (activeSignalId.startsWith('local-')) {
+      return () => clearTimeout(timer);
+    }
+
     const unsubscribe = onSnapshot(doc(db, 'signals', activeSignalId), (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
@@ -420,20 +474,33 @@ export function RoutingScreen({ signalId, signalLocation }: RoutingScreenProps) 
       }
     });
 
-    // For demonstration: simulate a dispatcher accepting after 4 seconds
-    const timer = setTimeout(async () => {
-      try {
-        await updateDoc(doc(db, 'signals', activeSignalId), { status: 'accepted' });
-      } catch (err) {
-        console.error('Error updating signal:', err);
-      }
-    }, 4000);
-
     return () => {
       unsubscribe();
       clearTimeout(timer);
     };
   }, [activeSignalId]);
+
+  // Auto-wipe: count down from 300s (5 min), wipe when reaches 0
+  useEffect(() => {
+    setCountdown(300);
+    const interval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          onWipeSession();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatCountdown = (secs: number) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
 
   return (
     <div className="flex flex-col h-full md:h-screen w-full relative">
@@ -562,9 +629,21 @@ export function RoutingScreen({ signalId, signalLocation }: RoutingScreenProps) 
           </div>
         </div>
 
-        {/* Mobile Wipe Session Button */}
-        <div className="p-5 mt-auto border-t border-white/5 bg-background md:hidden">
-          <button className="w-full h-12 bg-error/10 hover:bg-error/20 border border-error/50 rounded-xl flex items-center justify-center gap-2 text-error transition-colors active:scale-95">
+        {/* Auto-wipe countdown banner */}
+        <div className="mx-5 md:mx-10 mb-2 mt-0 flex items-center justify-between bg-error/10 border border-error/30 rounded-xl px-4 py-2">
+          <div className="flex items-center gap-2 text-error text-xs font-semibold">
+            <Clock size={14} />
+            <span>Auto-wipe in <span className="font-mono text-sm">{formatCountdown(countdown)}</span></span>
+          </div>
+          <span className="text-[10px] text-on-surface-variant opacity-60">Session will clear automatically</span>
+        </div>
+
+        {/* Wipe Session Button — visible on both mobile & desktop */}
+        <div className="px-5 md:px-10 pb-5 pt-2">
+          <button
+            onClick={onWipeSession}
+            className="w-full h-12 bg-error/10 hover:bg-error/20 border border-error/50 rounded-xl flex items-center justify-center gap-2 text-error transition-colors active:scale-95"
+          >
             <Trash2 size={20} />
             <span className="text-sm font-bold tracking-wide">Wipe Session</span>
           </button>

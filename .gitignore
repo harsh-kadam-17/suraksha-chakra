@@ -9,3 +9,5 @@ coverage/
 
 # Firebase config with API keys – do NOT commit
 firebase-applet-config.json
+
+.vercel

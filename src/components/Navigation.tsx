@@ -4,9 +4,10 @@ import { ScreenState } from '../types';
 interface Props {
   currentScreen: ScreenState;
   onNavigate: (screen: ScreenState) => void;
+  onWipeSession: () => void;
 }
 
-export function Navigation({ currentScreen, onNavigate }: Props) {
+export function Navigation({ currentScreen, onNavigate, onWipeSession }: Props) {
   return (
     <>
       {/* Desktop Sidebar */}
@@ -21,11 +22,11 @@ export function Navigation({ currentScreen, onNavigate }: Props) {
           <NavItem icon={<Settings size={20} />} label="Settings" active={currentScreen === 'settings'} onClick={() => onNavigate('settings')} />
         </nav>
         <div className="mt-auto space-y-2 border-t border-white/10 pt-4">
-          <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-on-surface hover:bg-white/5 transition-colors">
+          <button onClick={() => onNavigate('hub')} className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-on-surface hover:bg-white/5 transition-colors">
             <LogOut size={20} />
             <span className="text-sm font-semibold">Quick Exit</span>
           </button>
-          <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-error hover:bg-error/10 transition-colors group">
+          <button onClick={onWipeSession} className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-error hover:bg-error/10 transition-colors group">
             <Trash2 size={20} className="group-hover:text-error" />
             <span className="text-sm font-bold group-hover:text-error">Wipe Session</span>
           </button>
