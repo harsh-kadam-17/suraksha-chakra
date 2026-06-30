@@ -12,52 +12,52 @@ interface VideoTutorial {
 
 const VIDEO_TUTORIALS: VideoTutorial[] = [
   {
-    title: "5 Crucial Self-Defense Moves for Women",
+    title: "5 Self-Defense Moves Every Woman Should Know",
     duration: "6:42",
-    description: "Learn how to use your body's strongest points to disable an attacker and escape.",
-    youtubeId: "T7aNSRoELA0",
-    thumbnailUrl: "https://img.youtube.com/vi/T7aNSRoELA0/hqdefault.jpg",
+    description: "Learn how to use your body's strongest points to disable an attacker and escape safely.",
+    youtubeId: "G5-o4G5hY7s",
+    thumbnailUrl: "https://img.youtube.com/vi/G5-o4G5hY7s/hqdefault.jpg",
     moves: ["Heel palm strike to nose", "Knee strike to groin", "Base-of-palm wrist twist", "Eye gouge/swipe", "Active escape sprint"]
   },
   {
     title: "How to Escape a Wrist Grab",
     duration: "4:15",
     description: "Detailed demonstration on breaking free from single and double wrist grabs instantly.",
-    youtubeId: "LN4uxPpXJOE",
-    thumbnailUrl: "https://img.youtube.com/vi/LN4uxPpXJOE/hqdefault.jpg",
+    youtubeId: "R-k0L3gUeYo",
+    thumbnailUrl: "https://img.youtube.com/vi/R-k0L3gUeYo/hqdefault.jpg",
     moves: ["Identify thumb gap", "Rotate arm downward", "Pull against weak grip point", "Follow up with elbow strike"]
   },
   {
-    title: "Defending Against Bear Hugs (Grabs from Behind)",
+    title: "Defense Against Choke from Behind",
     duration: "5:30",
-    description: "Simple techniques to break free when someone grabs or bear-hugs you from behind.",
-    youtubeId: "GoBL4GRMYKU",
-    thumbnailUrl: "https://img.youtube.com/vi/GoBL4GRMYKU/hqdefault.jpg",
-    moves: ["Lower your center of gravity", "Stomp on attacker's foot", "Elbow strike back to ribs/face", "Turn and run"]
+    description: "Simple techniques to break free when someone chokes or grabs you from behind.",
+    youtubeId: "F0f545N-iX8",
+    thumbnailUrl: "https://img.youtube.com/vi/F0f545N-iX8/hqdefault.jpg",
+    moves: ["Lower your center of gravity", "Tuck chin to protect airway", "Pluck hands and turn into attacker", "Strike and run"]
   },
   {
     title: "Everyday Objects for Self-Defense",
     duration: "5:12",
-    description: "Learn how keys, tactical pens, and heavy purses can become effective shields and defense tools.",
-    youtubeId: "ZhTSuMJImWo",
-    thumbnailUrl: "https://img.youtube.com/vi/ZhTSuMJImWo/hqdefault.jpg",
+    description: "Learn how keys, tactical pens, and heavy purses can become effective defense tools.",
+    youtubeId: "84_L1J0e72g",
+    thumbnailUrl: "https://img.youtube.com/vi/84_L1J0e72g/hqdefault.jpg",
     moves: ["Hold keys between knuckles or hammer grip", "Strike with bezel of a tactical pen", "Swing a heavy purse to build distance", "Use phone corner as a target strike"]
   },
   {
     title: "Ground Defense & Escapes",
     duration: "6:20",
     description: "Critical maneuvers to escape if you are pushed to the ground or pinned down by an attacker.",
-    youtubeId: "KVpxP3Gp1FQ",
-    thumbnailUrl: "https://img.youtube.com/vi/KVpxP3Gp1FQ/hqdefault.jpg",
+    youtubeId: "e_p58mQxG1k",
+    thumbnailUrl: "https://img.youtube.com/vi/e_p58mQxG1k/hqdefault.jpg",
     moves: ["Create a defensive frame with forearms", "Bridge and roll to shift weights", "Shuck hips to create a space gap", "Kick away and stand up using tech-standup"]
   },
   {
-    title: "Escaping Chokeholds",
+    title: "Situational Awareness Training",
     duration: "4:45",
-    description: "Quick-release techniques to defend against front and rear chokeholds to maintain airway safety.",
-    youtubeId: "sf7K41s5sHM",
-    thumbnailUrl: "https://img.youtube.com/vi/sf7K41s5sHM/hqdefault.jpg",
-    moves: ["Pluck and pull hands away from throat", "Shrug shoulders and tuck chin", "Turn into the attacker to break choke angle", "Execute knee or groin strike to escape"]
+    description: "Learn to recognize danger before it happens — the most important self-defense skill of all.",
+    youtubeId: "wX-y0K4c3pU",
+    thumbnailUrl: "https://img.youtube.com/vi/wX-y0K4c3pU/hqdefault.jpg",
+    moves: ["Practice the 360-degree scan", "Trust your instincts immediately", "Maintain safe distance from strangers", "Identify exits in every environment"]
   }
 ];
 
