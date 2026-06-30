@@ -15,48 +15,48 @@ const VIDEO_TUTORIALS: VideoTutorial[] = [
     title: "5 Crucial Self-Defense Moves for Women",
     duration: "6:42",
     description: "Learn how to use your body's strongest points to disable an attacker and escape.",
-    youtubeId: "KVpxP3Gp1FQ",
-    thumbnailUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=60",
+    youtubeId: "T7aNSRoELA0",
+    thumbnailUrl: "https://img.youtube.com/vi/T7aNSRoELA0/hqdefault.jpg",
     moves: ["Heel palm strike to nose", "Knee strike to groin", "Base-of-palm wrist twist", "Eye gouge/swipe", "Active escape sprint"]
   },
   {
     title: "How to Escape a Wrist Grab",
     duration: "4:15",
     description: "Detailed demonstration on breaking free from single and double wrist grabs instantly.",
-    youtubeId: "T7aNSRoELA0",
-    thumbnailUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500&auto=format&fit=crop&q=60",
+    youtubeId: "LN4uxPpXJOE",
+    thumbnailUrl: "https://img.youtube.com/vi/LN4uxPpXJOE/hqdefault.jpg",
     moves: ["Identify thumb gap", "Rotate arm downward", "Pull against weak grip point", "Follow up with elbow strike"]
   },
   {
     title: "Defending Against Bear Hugs (Grabs from Behind)",
     duration: "5:30",
     description: "Simple techniques to break free when someone grabs or bear-hugs you from behind.",
-    youtubeId: "sf7K41s5sHM",
-    thumbnailUrl: "https://images.unsplash.com/photo-1507398941214-572c25f4b1bc?w=500&auto=format&fit=crop&q=60",
+    youtubeId: "GoBL4GRMYKU",
+    thumbnailUrl: "https://img.youtube.com/vi/GoBL4GRMYKU/hqdefault.jpg",
     moves: ["Lower your center of gravity", "Stomp on attacker's foot", "Elbow strike back to ribs/face", "Turn and run"]
   },
   {
     title: "Everyday Objects for Self-Defense",
     duration: "5:12",
     description: "Learn how keys, tactical pens, and heavy purses can become effective shields and defense tools.",
-    youtubeId: "0_Xv-qXGk3g",
-    thumbnailUrl: "https://images.unsplash.com/photo-1590247813693-5541d1c609fd?w=500&auto=format&fit=crop&q=60",
+    youtubeId: "ZhTSuMJImWo",
+    thumbnailUrl: "https://img.youtube.com/vi/ZhTSuMJImWo/hqdefault.jpg",
     moves: ["Hold keys between knuckles or hammer grip", "Strike with bezel of a tactical pen", "Swing a heavy purse to build distance", "Use phone corner as a target strike"]
   },
   {
     title: "Ground Defense & Escapes",
     duration: "6:20",
     description: "Critical maneuvers to escape if you are pushed to the ground or pinned down by an attacker.",
-    youtubeId: "eH02y4QzFwQ",
-    thumbnailUrl: "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format&fit=crop&q=60",
+    youtubeId: "KVpxP3Gp1FQ",
+    thumbnailUrl: "https://img.youtube.com/vi/KVpxP3Gp1FQ/hqdefault.jpg",
     moves: ["Create a defensive frame with forearms", "Bridge and roll to shift weights", "Shuck hips to create a space gap", "Kick away and stand up using tech-standup"]
   },
   {
     title: "Escaping Chokeholds",
     duration: "4:45",
     description: "Quick-release techniques to defend against front and rear chokeholds to maintain airway safety.",
-    youtubeId: "Y-iLqJ6Ruxs",
-    thumbnailUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&fit=crop&q=60",
+    youtubeId: "sf7K41s5sHM",
+    thumbnailUrl: "https://img.youtube.com/vi/sf7K41s5sHM/hqdefault.jpg",
     moves: ["Pluck and pull hands away from throat", "Shrug shoulders and tuck chin", "Turn into the attacker to break choke angle", "Execute knee or groin strike to escape"]
   }
 ];
