@@ -1,6 +1,30 @@
-import { User, Mail, Phone, ShieldCheck, Edit3 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Mail, Phone, ShieldCheck, Edit3, LogOut } from 'lucide-react';
+import { UserProfile, ScreenState } from '../types';
 
-export function ProfileScreen() {
+interface ProfileScreenProps {
+  onNavigate: (screen: ScreenState) => void;
+}
+
+export function ProfileScreen({ onNavigate }: ProfileScreenProps) {
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('suraksha_user');
+    if (savedUser) {
+      try {
+        setUserProfile(JSON.parse(savedUser));
+      } catch (e) {
+        console.error('Error parsing user data', e);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('suraksha_user');
+    onNavigate('login');
+  };
+
   return (
     <div className="flex-1 w-full max-w-screen-md mx-auto px-5 py-8 md:pt-24 z-10 relative">
       <div className="mb-8 flex justify-between items-start">
@@ -18,7 +42,7 @@ export function ProfileScreen() {
         <div className="w-24 h-24 rounded-full bg-surface-bright border-4 border-surface-container-highest flex items-center justify-center text-on-surface-variant mb-4 shadow-lg">
           <User size={48} />
         </div>
-        <h2 className="text-xl font-bold text-on-surface">Anonymous User</h2>
+        <h2 className="text-xl font-bold text-on-surface">{userProfile?.name || 'Anonymous User'}</h2>
         <span className="text-xs font-semibold text-tertiary bg-tertiary/10 px-3 py-1 rounded-full mt-2 border border-tertiary/20 flex items-center gap-1">
           <ShieldCheck size={14} />
           Identity Masked
@@ -28,8 +52,8 @@ export function ProfileScreen() {
       <div className="space-y-4 pb-12">
         <h3 className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">Contact Information</h3>
         <div className="bg-surface-container-high rounded-xl border border-white/5 overflow-hidden shadow-sm">
-          <ProfileField icon={<Mail size={20} />} label="Email" value="user@masked.secure" />
-          <ProfileField icon={<Phone size={20} />} label="Recovery Phone" value="***-***-1234" />
+          <ProfileField icon={<Mail size={20} />} label="Email" value={userProfile?.email || 'user@masked.secure'} />
+          <ProfileField icon={<Phone size={20} />} label="Recovery Phone" value={userProfile?.phone || '***-***-1234'} />
         </div>
 
         <h3 className="text-sm font-semibold text-primary uppercase tracking-wider mt-8 mb-2">Security Status</h3>
@@ -40,13 +64,21 @@ export function ProfileScreen() {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm font-bold text-on-surface">Decoy PIN</span>
-            <span className="text-xs font-semibold text-on-surface-variant">Not Configured</span>
+            <span className="text-xs font-semibold text-on-surface-variant">{userProfile?.pin ? 'Configured' : 'Not Configured'}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm font-bold text-on-surface">Data Wipe</span>
             <span className="text-xs font-semibold text-error">Armed</span>
           </div>
         </div>
+
+        <button 
+          onClick={handleLogout}
+          className="w-full mt-8 bg-error/10 text-error hover:bg-error/20 border border-error/20 py-4 rounded-xl flex items-center justify-center gap-2 font-bold transition-colors"
+        >
+          <LogOut size={20} />
+          Securely Log Out & Wipe Session
+        </button>
       </div>
     </div>
   );
