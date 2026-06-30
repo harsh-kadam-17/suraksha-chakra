@@ -15,48 +15,48 @@ const VIDEO_TUTORIALS: VideoTutorial[] = [
     title: "5 Self-Defense Moves Every Woman Should Know",
     duration: "6:42",
     description: "Learn how to use your body's strongest points to disable an attacker and escape safely.",
-    youtubeId: "G5-o4G5hY7s",
-    thumbnailUrl: "https://img.youtube.com/vi/G5-o4G5hY7s/hqdefault.jpg",
+    youtubeId: "KVpxP3ZZtAc",
+    thumbnailUrl: "https://img.youtube.com/vi/KVpxP3ZZtAc/hqdefault.jpg",
     moves: ["Heel palm strike to nose", "Knee strike to groin", "Base-of-palm wrist twist", "Eye gouge/swipe", "Active escape sprint"]
   },
   {
-    title: "How to Escape a Wrist Grab",
+    title: "Self Defense Moves Every Woman Should Know",
     duration: "4:15",
-    description: "Detailed demonstration on breaking free from single and double wrist grabs instantly.",
-    youtubeId: "R-k0L3gUeYo",
-    thumbnailUrl: "https://img.youtube.com/vi/R-k0L3gUeYo/hqdefault.jpg",
+    description: "Practical self-defense techniques demonstrated step by step for real-world scenarios.",
+    youtubeId: "k9Jn0eP-ZVg",
+    thumbnailUrl: "https://img.youtube.com/vi/k9Jn0eP-ZVg/hqdefault.jpg",
     moves: ["Identify thumb gap", "Rotate arm downward", "Pull against weak grip point", "Follow up with elbow strike"]
   },
   {
-    title: "Defense Against Choke from Behind",
+    title: "Simple Self Defense Moves You Should Know",
     duration: "5:30",
-    description: "Simple techniques to break free when someone chokes or grabs you from behind.",
-    youtubeId: "F0f545N-iX8",
-    thumbnailUrl: "https://img.youtube.com/vi/F0f545N-iX8/hqdefault.jpg",
+    description: "BuzzFeed's guide to simple, effective self-defense moves that anyone can learn quickly.",
+    youtubeId: "M4_8PoRQP8w",
+    thumbnailUrl: "https://img.youtube.com/vi/M4_8PoRQP8w/hqdefault.jpg",
     moves: ["Lower your center of gravity", "Tuck chin to protect airway", "Pluck hands and turn into attacker", "Strike and run"]
   },
   {
-    title: "Everyday Objects for Self-Defense",
+    title: "5 Self Defense Techniques Every Woman Should Know",
     duration: "5:12",
-    description: "Learn how keys, tactical pens, and heavy purses can become effective defense tools.",
-    youtubeId: "84_L1J0e72g",
-    thumbnailUrl: "https://img.youtube.com/vi/84_L1J0e72g/hqdefault.jpg",
+    description: "BeerBiceps Women's Fitness guide covering essential defense techniques for everyday safety.",
+    youtubeId: "0UqK3tfuu8Q",
+    thumbnailUrl: "https://img.youtube.com/vi/0UqK3tfuu8Q/hqdefault.jpg",
     moves: ["Hold keys between knuckles or hammer grip", "Strike with bezel of a tactical pen", "Swing a heavy purse to build distance", "Use phone corner as a target strike"]
   },
   {
-    title: "Ground Defense & Escapes",
+    title: "7 Self-Defense Techniques for Women from Professionals",
     duration: "6:20",
-    description: "Critical maneuvers to escape if you are pushed to the ground or pinned down by an attacker.",
-    youtubeId: "e_p58mQxG1k",
-    thumbnailUrl: "https://img.youtube.com/vi/e_p58mQxG1k/hqdefault.jpg",
+    description: "Professional techniques from BRIGHT SIDE covering 7 critical self-defense scenarios.",
+    youtubeId: "T7aNSRoDCmg",
+    thumbnailUrl: "https://img.youtube.com/vi/T7aNSRoDCmg/hqdefault.jpg",
     moves: ["Create a defensive frame with forearms", "Bridge and roll to shift weights", "Shuck hips to create a space gap", "Kick away and stand up using tech-standup"]
   },
   {
-    title: "Situational Awareness Training",
+    title: "The #1 Self-Defense Tip for Women",
     duration: "4:45",
-    description: "Learn to recognize danger before it happens — the most important self-defense skill of all.",
-    youtubeId: "wX-y0K4c3pU",
-    thumbnailUrl: "https://img.youtube.com/vi/wX-y0K4c3pU/hqdefault.jpg",
+    description: "Gracie Breakdown's most important self-defense principle that every woman must know.",
+    youtubeId: "5g41-aK1LIY",
+    thumbnailUrl: "https://img.youtube.com/vi/5g41-aK1LIY/hqdefault.jpg",
     moves: ["Practice the 360-degree scan", "Trust your instincts immediately", "Maintain safe distance from strangers", "Identify exits in every environment"]
   }
 ];
