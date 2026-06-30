@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Book, Download, ShieldAlert, FileText, ChevronRight, X, CheckCircle2, Video, Play, Clock } from 'lucide-react';
+import { Book, Download, ShieldAlert, FileText, ChevronRight, X, CheckCircle2, Video, Play, Clock, ExternalLink } from 'lucide-react';
 
 interface VideoTutorial {
   title: string;
@@ -243,7 +243,10 @@ export function ResourcesScreen() {
             {VIDEO_TUTORIALS.map((video, idx) => (
               <div 
                 key={idx}
-                onClick={() => setSelectedVideo(video)}
+                onClick={() => {
+                  window.open(`https://www.youtube.com/watch?v=${video.youtubeId}`, '_blank');
+                  setSelectedVideo(video);
+                }}
                 className="glass-panel overflow-hidden rounded-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all border border-primary/10 shadow-sm flex flex-col bg-surface-container/20 group"
               >
                 {/* Thumbnail container */}
@@ -382,16 +385,27 @@ export function ResourcesScreen() {
               <h2 className="text-lg md:text-xl font-bold text-primary leading-tight">{selectedVideo.title}</h2>
             </div>
 
-            <div className="w-full aspect-video rounded-xl overflow-hidden bg-black shadow-inner border border-white/5 mt-1">
-              <iframe
-                className="w-full h-full"
-                src={`https://www.youtube.com/embed/${selectedVideo.youtubeId}?autoplay=1`}
-                title={selectedVideo.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              ></iframe>
-            </div>
+            <a 
+              href={`https://www.youtube.com/watch?v=${selectedVideo.youtubeId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full aspect-video rounded-xl overflow-hidden bg-black shadow-inner border border-white/5 mt-1 relative group/play"
+            >
+              <img 
+                src={`https://img.youtube.com/vi/${selectedVideo.youtubeId}/hqdefault.jpg`}
+                alt={selectedVideo.title}
+                className="w-full h-full object-cover group-hover/play:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover/play:bg-black/20 transition-colors">
+                <div className="w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg group-hover/play:scale-110 transition-transform">
+                  <Play size={28} fill="currentColor" className="ml-1" />
+                </div>
+              </div>
+              <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/70 text-white text-xs font-medium px-2 py-1 rounded">
+                <ExternalLink size={12} />
+                Watch on YouTube
+              </div>
+            </a>
 
             <div className="space-y-3">
               <h3 className="text-xs font-bold text-on-surface uppercase tracking-wider">Key Steps to Practice</h3>
