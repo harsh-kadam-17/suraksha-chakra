@@ -48,7 +48,7 @@ export default function App() {
         {currentScreen !== 'routing' && <TopBar onNavigate={setCurrentScreen} currentScreen={currentScreen} />}
 
         <div className="flex-1 overflow-y-auto pb-[90px] md:pb-0 relative hide-scrollbar">
-          {currentScreen === 'hub' && <HubScreen onAction={handleHubAction} />}
+          {currentScreen === 'hub' && <HubScreen onAction={handleHubAction} onNavigate={setCurrentScreen} />}
           {currentScreen === 'routing' && (
             <RoutingScreen signalId={activeSignalId} signalLocation={activeSignalLocation} onWipeSession={wipeSession} />
           )}

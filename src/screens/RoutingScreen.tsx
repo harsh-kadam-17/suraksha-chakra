@@ -12,7 +12,10 @@ const API_KEY =
   (globalThis as any).GOOGLE_MAPS_PLATFORM_KEY ||
   '';
 
-const hasValidKey = Boolean(API_KEY) && API_KEY !== 'YOUR_API_KEY';
+const hasValidKey = Boolean(API_KEY) && 
+  API_KEY !== 'YOUR_API_KEY' && 
+  API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY' && 
+  !API_KEY.includes('YOUR_');
 
 const DEFAULT_LOC = { lat: 28.6139, lng: 77.2090 }; // New Delhi fallback
 
@@ -412,15 +415,23 @@ export function RoutingScreen({ signalId, signalLocation, onWipeSession }: Routi
             );
           });
           setSenderLocation(loc);
-          const docRef = await addDoc(collection(db, 'signals'), {
+
+          // Set local ID immediately to avoid blocking on Firebase
+          const localId = 'local-direct-' + Date.now();
+          setActiveSignalId(localId);
+
+          // Save signal to Firebase in the background (non-blocking)
+          addDoc(collection(db, 'signals'), {
             status: 'pending',
             type: 'direct',
             location: loc,
             createdAt: serverTimestamp(),
+          }).catch((err) => {
+            console.warn('Firebase direct signal save failed (using local fallback):', err);
           });
-          setActiveSignalId(docRef.id);
         } catch (err) {
           console.error('Error creating signal:', err);
+          setActiveSignalId('local-direct-' + Date.now());
         }
       };
       createSignal();

@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Mic, Square, SquarePen, Send, AlertTriangle, Loader2 } from 'lucide-react';
+import { Mic, Square, SquarePen, Send, AlertTriangle, Loader2, Phone } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -20,10 +20,23 @@ async function getDeviceLocation(): Promise<{ lat: number; lng: number }> {
   });
 }
 
-export function HubScreen({ onAction }: { onAction: (signalId: string, location: { lat: number; lng: number }) => void }) {
+export function HubScreen({ onAction, onNavigate }: { onAction: (signalId: string, location: { lat: number; lng: number }) => void; onNavigate?: (screen: any) => void }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const textRef = useRef<HTMLInputElement>(null);
+  const [trustedContacts, setTrustedContacts] = useState<{ id: string; name: string; phone: string }[]>([]);
+  const [customPhone, setCustomPhone] = useState('');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('trusted_contacts');
+    if (saved) {
+      try {
+        setTrustedContacts(JSON.parse(saved));
+      } catch (e) {
+        console.warn('Failed to parse trusted contacts:', e);
+      }
+    }
+  }, []);
 
   const sendSignal = async (type: 'voice' | 'text' | 'sos', message?: string) => {
     if (isSending) return;
@@ -187,6 +200,83 @@ export function HubScreen({ onAction }: { onAction: (signalId: string, location:
             </div>
             <span className="text-xs text-[#ff5449] font-semibold bg-[#ff5449]/10 px-2 py-0.5 rounded border border-[#ff5449]/20 group-hover:scale-105 transition-transform">CALL</span>
           </a>
+        </div>
+      </div>
+
+      {/* Urgent Call / Custom Dialer */}
+      <div className="w-full max-w-md mt-6 glass-panel rounded-xl p-5 flex flex-col gap-4 shadow-lg border border-white/5 bg-surface-container/30">
+        <h3 className="text-sm font-bold text-[#ff5449] uppercase tracking-wider flex items-center gap-2">
+          <Phone size={16} />
+          Urgent Call
+        </h3>
+        
+        {/* Trusted Contacts Quick Call */}
+        <div className="flex flex-col gap-2 border-b border-white/5 pb-3">
+          <div className="flex justify-between items-center">
+            <p className="text-[11px] text-on-surface-variant font-semibold uppercase tracking-wider">Trusted Circle</p>
+            {onNavigate && (
+              <button 
+                onClick={() => {
+                  sessionStorage.setItem('open_trusted_contacts', 'true');
+                  onNavigate('settings');
+                }}
+                className="text-[10px] text-primary hover:underline font-bold cursor-pointer"
+              >
+                {trustedContacts.length > 0 ? 'Edit' : 'Add'}
+              </button>
+            )}
+          </div>
+          
+          {trustedContacts.length > 0 ? (
+            <div className="grid grid-cols-2 gap-2">
+              {trustedContacts.map(c => (
+                <a
+                  key={c.id}
+                  href={`tel:${c.phone}`}
+                  className="flex items-center justify-between p-3 rounded-lg bg-surface-container-high hover:bg-white/5 border border-white/5 transition-colors group"
+                >
+                  <div className="truncate pr-1">
+                    <p className="text-[10px] text-on-surface-variant font-medium truncate">{c.name}</p>
+                    <p className="text-sm font-bold text-on-surface truncate">{c.phone}</p>
+                  </div>
+                  <span className="text-xs text-[#ff5449] font-semibold bg-[#ff5449]/10 px-2 py-0.5 rounded border border-[#ff5449]/20 group-hover:scale-105 transition-transform flex-shrink-0">CALL</span>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-on-surface-variant italic py-1">No urgent contacts saved yet.</p>
+          )}
+        </div>
+
+        {/* Custom Dialer Input */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[11px] text-on-surface-variant font-semibold uppercase tracking-wider">Dial Custom Number</p>
+          <div className="flex gap-2">
+            <input
+              type="tel"
+              placeholder="Enter phone number..."
+              value={customPhone}
+              onChange={(e) => setCustomPhone(e.target.value)}
+              className="flex-1 bg-surface-container-high text-on-surface text-sm rounded-lg border border-white/10 px-3 py-2 outline-none focus:border-primary-container transition-colors"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && customPhone.trim()) {
+                  window.location.href = `tel:${customPhone.trim()}`;
+                }
+              }}
+            />
+            <a
+              href={customPhone.trim() ? `tel:${customPhone.trim()}` : '#'}
+              onClick={(e) => {
+                if (!customPhone.trim()) {
+                  e.preventDefault();
+                }
+              }}
+              className={`px-4 bg-[#ff5449] text-white rounded-lg font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-[#ff5449]/90 transition-colors active:scale-95 ${!customPhone.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <Phone size={14} />
+              CALL
+            </a>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,65 @@
 import { useState } from 'react';
-import { Book, Download, ShieldAlert, FileText, ChevronRight, X, CheckCircle2 } from 'lucide-react';
+import { Book, Download, ShieldAlert, FileText, ChevronRight, X, CheckCircle2, Video, Play, Clock } from 'lucide-react';
+
+interface VideoTutorial {
+  title: string;
+  duration: string;
+  description: string;
+  youtubeId: string;
+  thumbnailUrl: string;
+  moves: string[];
+}
+
+const VIDEO_TUTORIALS: VideoTutorial[] = [
+  {
+    title: "5 Crucial Self-Defense Moves for Women",
+    duration: "6:42",
+    description: "Learn how to use your body's strongest points to disable an attacker and escape.",
+    youtubeId: "KVpxP3Gp1FQ",
+    thumbnailUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=60",
+    moves: ["Heel palm strike to nose", "Knee strike to groin", "Base-of-palm wrist twist", "Eye gouge/swipe", "Active escape sprint"]
+  },
+  {
+    title: "How to Escape a Wrist Grab",
+    duration: "4:15",
+    description: "Detailed demonstration on breaking free from single and double wrist grabs instantly.",
+    youtubeId: "T7aNSRoELA0",
+    thumbnailUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500&auto=format&fit=crop&q=60",
+    moves: ["Identify thumb gap", "Rotate arm downward", "Pull against weak grip point", "Follow up with elbow strike"]
+  },
+  {
+    title: "Defending Against Bear Hugs (Grabs from Behind)",
+    duration: "5:30",
+    description: "Simple techniques to break free when someone grabs or bear-hugs you from behind.",
+    youtubeId: "sf7K41s5sHM",
+    thumbnailUrl: "https://images.unsplash.com/photo-1507398941214-572c25f4b1bc?w=500&auto=format&fit=crop&q=60",
+    moves: ["Lower your center of gravity", "Stomp on attacker's foot", "Elbow strike back to ribs/face", "Turn and run"]
+  },
+  {
+    title: "Everyday Objects for Self-Defense",
+    duration: "5:12",
+    description: "Learn how keys, tactical pens, and heavy purses can become effective shields and defense tools.",
+    youtubeId: "0_Xv-qXGk3g",
+    thumbnailUrl: "https://images.unsplash.com/photo-1590247813693-5541d1c609fd?w=500&auto=format&fit=crop&q=60",
+    moves: ["Hold keys between knuckles or hammer grip", "Strike with bezel of a tactical pen", "Swing a heavy purse to build distance", "Use phone corner as a target strike"]
+  },
+  {
+    title: "Ground Defense & Escapes",
+    duration: "6:20",
+    description: "Critical maneuvers to escape if you are pushed to the ground or pinned down by an attacker.",
+    youtubeId: "eH02y4QzFwQ",
+    thumbnailUrl: "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format&fit=crop&q=60",
+    moves: ["Create a defensive frame with forearms", "Bridge and roll to shift weights", "Shuck hips to create a space gap", "Kick away and stand up using tech-standup"]
+  },
+  {
+    title: "Escaping Chokeholds",
+    duration: "4:45",
+    description: "Quick-release techniques to defend against front and rear chokeholds to maintain airway safety.",
+    youtubeId: "Y-iLqJ6Ruxs",
+    thumbnailUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&fit=crop&q=60",
+    moves: ["Pluck and pull hands away from throat", "Shrug shoulders and tuck chin", "Turn into the attacker to break choke angle", "Execute knee or groin strike to escape"]
+  }
+];
 
 interface ResourceData {
   title: string;
@@ -59,6 +119,18 @@ const RESOURCES_DATA: ResourceData[] = [
     ]
   },
   {
+    title: "Situational Awareness & De-escalation",
+    description: "Techniques to recognize environmental threats early and verbally defuse tense encounters.",
+    type: "method",
+    details: "Situational awareness is your primary line of defense. By staying alert and recognizing danger before it escalates, you can avoid conflicts entirely or de-escalate them through assertive communication.",
+    steps: [
+      "Practice the 360-Degree Scan: Periodically glance around your environment. Avoid walking while looking down at your phone or wearing headphones in both ears.",
+      "Trust Your Instincts: If a situation, person, or place feels unsafe or makes you uncomfortable, leave immediately without worrying about seeming impolite.",
+      "Set Clear Boundaries: Use a firm, clear, and loud voice to tell an encroaching individual to back off (e.g., 'Stop, stay back!'). This alerts bystanders.",
+      "Maintain a Safe Stance: Stand with your feet shoulder-width apart, hands up in a defensive but non-confrontational posture, giving you balance and protection."
+    ]
+  },
+  {
     title: "Basic Self-Defense Moves",
     description: "Critical, easy-to-remember physical defense techniques that everyone should know to escape an attacker.",
     type: "method",
@@ -95,6 +167,18 @@ const RESOURCES_DATA: ResourceData[] = [
     ]
   },
   {
+    title: "Rideshare & Public Transit Safety",
+    description: "A step-by-step protocol for staying safe while traveling alone using apps or transit.",
+    type: "article",
+    details: "Using rideshares or public transportation alone requires active vigilance. Following a pre-travel protocol significantly reduces safety risks and ensures someone always knows your status.",
+    steps: [
+      "Double-Verify Before Entering: Always match the vehicle license plate, make, model, and the driver's photo with the details shown in the app.",
+      "Ask the Driver: 'Who are you picking up?' and wait for them to say your name, rather than asking 'Are you [Name]?'",
+      "Share Your Live Trip Status: Use the app's native 'Share Trip Status' feature or send your live location to a trusted contact.",
+      "Sit in the Back Seat: Sit on the passenger side (opposite the driver) to maintain maximum distance, visibility of the driver, and access to both doors."
+    ]
+  },
+  {
     title: "Incident Log Template",
     description: "A structured format to safely document events for legal evidence.",
     type: "artifact",
@@ -117,11 +201,25 @@ const RESOURCES_DATA: ResourceData[] = [
       "Instruct your neighbors or children on what to do if they hear disturbances or witness an emergency.",
       "Regularly review your plan with a support advocate as circumstances evolve."
     ]
+  },
+  {
+    title: "EDC Protective Bag Checklist",
+    description: "A comprehensive checklist of safety and protection items to pack in your handbag or backpack.",
+    type: "artifact",
+    details: "Your bag can function as a tool for personal security. Carrying these items and organizing them so they are accessible in under 2 seconds is key to physical defense.",
+    steps: [
+      "Pepper Gel (Over Spray): Gel shoots in a stream up to 12 feet and is less affected by wind blowback, making it safer to use in tight or outdoor spaces.",
+      "Personal Alarm with Strobe: A 130dB+ pull-pin siren that emits a deafening noise and flashing light to disorient attackers and alert others.",
+      "High-Lumen Tactical Flashlight: A compact flashlight (at least 300 lumens) with a bezel edge. The bright beam can temporarily blind an attacker at night.",
+      "Physical Whistle: A pea-less, high-pitch safety whistle (such as Fox 40) that works without batteries and is extremely loud.",
+      "Emergency Contact Card & Power Bank: Keep a backup portable charger and a laminated card with your blood type, ICE contacts, and medical alerts."
+    ]
   }
 ];
 
 export function ResourcesScreen() {
   const [selectedResource, setSelectedResource] = useState<ResourceData | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<VideoTutorial | null>(null);
 
   const methods = RESOURCES_DATA.filter(r => r.type === 'method');
   const articles = RESOURCES_DATA.filter(r => r.type === 'article');
@@ -135,6 +233,49 @@ export function ResourcesScreen() {
       </div>
 
       <div className="space-y-8 pb-12">
+        {/* Self-Defense Video Tutorials */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 border-b border-primary/10 pb-2">
+            <Video className="text-primary" size={20} />
+            <h2 className="text-lg font-bold text-on-surface">Self-Defense Video Guides</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {VIDEO_TUTORIALS.map((video, idx) => (
+              <div 
+                key={idx}
+                onClick={() => setSelectedVideo(video)}
+                className="glass-panel overflow-hidden rounded-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all border border-primary/10 shadow-sm flex flex-col bg-surface-container/20 group"
+              >
+                {/* Thumbnail container */}
+                <div className="relative aspect-video w-full bg-black/10 overflow-hidden">
+                  <img 
+                    src={video.thumbnailUrl} 
+                    alt={video.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 bg-black/35 flex items-center justify-center group-hover:bg-black/20 transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-primary/95 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200">
+                      <Play size={20} fill="currentColor" className="ml-0.5" />
+                    </div>
+                  </div>
+                  {/* Duration Badge */}
+                  <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/70 text-[10px] text-white rounded font-medium flex items-center gap-1">
+                    <Clock size={10} />
+                    {video.duration}
+                  </div>
+                </div>
+                <div className="p-4 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors leading-tight mb-1">{video.title}</h3>
+                    <p className="text-[12px] text-on-surface-variant line-clamp-2 leading-relaxed">{video.description}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <ResourceSection title="Primary Safety Methods" icon={<ShieldAlert className="text-primary" size={20} />}>
           {methods.map((resource, idx) => (
             <ResourceCard 
@@ -218,6 +359,60 @@ export function ResourcesScreen() {
             >
               <CheckCircle2 size={18} />
               Got It, Thank You
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Video Detail Modal Overlay */}
+      {selectedVideo && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="glass-panel max-w-xl w-full rounded-2xl p-6 relative animate-in fade-in zoom-in-95 duration-200 flex flex-col gap-4 text-on-surface bg-background shadow-2xl border border-primary/20">
+            <button 
+              onClick={() => setSelectedVideo(null)}
+              className="absolute right-4 top-4 p-1.5 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant hover:text-on-surface z-10 bg-surface-container/60"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="flex items-center gap-3 mt-2 pr-8">
+              <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center flex-shrink-0">
+                <Video size={20} />
+              </div>
+              <h2 className="text-lg md:text-xl font-bold text-primary leading-tight">{selectedVideo.title}</h2>
+            </div>
+
+            <div className="w-full aspect-video rounded-xl overflow-hidden bg-black shadow-inner border border-white/5 mt-1">
+              <iframe
+                className="w-full h-full"
+                src={`https://www.youtube.com/embed/${selectedVideo.youtubeId}?autoplay=1`}
+                title={selectedVideo.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              ></iframe>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-wider">Key Steps to Practice</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {selectedVideo.moves.map((move, idx) => (
+                  <div key={idx} className="flex gap-2.5 text-xs text-on-surface items-center p-2.5 rounded-lg bg-surface-container border border-white/5">
+                    <div className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-[10px] flex-shrink-0">
+                      {idx + 1}
+                    </div>
+                    <p className="font-semibold text-on-surface flex-1 leading-snug">{move}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => setSelectedVideo(null)}
+              className="w-full h-11 bg-primary text-on-primary font-semibold rounded-xl transition-all hover:bg-primary/95 active:scale-[0.98] cursor-pointer mt-2 flex items-center justify-center gap-2"
+            >
+              <CheckCircle2 size={18} />
+              Finished Learning
             </button>
           </div>
         </div>

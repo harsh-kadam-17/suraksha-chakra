@@ -18,6 +18,11 @@ export function SettingsScreen() {
     if (saved) {
       try { setContacts(JSON.parse(saved)); } catch (e) {}
     }
+
+    if (sessionStorage.getItem('open_trusted_contacts') === 'true') {
+      setShowContacts(true);
+      sessionStorage.removeItem('open_trusted_contacts');
+    }
   }, []);
 
   const saveContacts = (newContacts: Contact[]) => {
