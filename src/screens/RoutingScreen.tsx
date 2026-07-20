@@ -33,9 +33,11 @@ function SecureMapContent({ handshakeStatus, senderLocation }: SecureMapContentP
   const [policeLocation, setPoliceLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const [hospitalLocation, setHospitalLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const [legalLocation, setLegalLocation] = useState<google.maps.LatLngLiteral | null>(null);
+  const [transitLocation, setTransitLocation] = useState<google.maps.LatLngLiteral | null>(null);
   const [policeName, setPoliceName] = useState<string>('');
   const [hospitalName, setHospitalName] = useState<string>('');
   const [legalName, setLegalName] = useState<string>('');
+  const [transitName, setTransitName] = useState<string>('');
 
   // Center map on sender's location immediately
   useEffect(() => {
@@ -101,19 +103,37 @@ function SecureMapContent({ handshakeStatus, senderLocation }: SecureMapContentP
         }
       }
     });
+
+    service.nearbySearch({
+      location: senderLocation,
+      radius: 5000,
+      keyword: 'railway station OR bus station'
+    }, (results, status) => {
+      if (status === placesLib.PlacesServiceStatus.OK && results && results[0]) {
+        const place = results[0];
+        if (place.geometry && place.geometry.location) {
+          setTransitLocation({
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+          });
+          setTransitName(place.name || 'Transit Station');
+        }
+      }
+    });
   }, [placesLib, map, senderLocation]);
 
   // Draw routing polylines
   useEffect(() => {
     const shouldRouteLegal = handshakeStatus === 'accepted' && legalLocation;
 
-    if (!routesLib || !map || !senderLocation || (!policeLocation && !hospitalLocation && !shouldRouteLegal)) {
-      if (map && senderLocation && (policeLocation || hospitalLocation || shouldRouteLegal)) {
+    if (!routesLib || !map || !senderLocation || (!policeLocation && !hospitalLocation && !shouldRouteLegal && !transitLocation)) {
+      if (map && senderLocation && (policeLocation || hospitalLocation || shouldRouteLegal || transitLocation)) {
         const bounds = new google.maps.LatLngBounds();
         bounds.extend(senderLocation);
         if (policeLocation) bounds.extend(policeLocation);
         if (hospitalLocation) bounds.extend(hospitalLocation);
         if (shouldRouteLegal) bounds.extend(legalLocation!);
+        if (transitLocation) bounds.extend(transitLocation);
         map.fitBounds(bounds, { top: 100, bottom: 150, left: 50, right: 50 });
       }
       return;
@@ -188,6 +208,27 @@ function SecureMapContent({ handshakeStatus, senderLocation }: SecureMapContentP
       );
     }
 
+    if (transitLocation) {
+      bounds.extend(transitLocation);
+      promises.push(
+        routesLib.Route.computeRoutes({
+          origin: senderLocation,
+          destination: transitLocation,
+          travelMode: 'DRIVING',
+          fields: ['path', 'distanceMeters', 'durationMillis', 'viewport'],
+        }).then(({ routes }) => {
+          if (routes?.[0]) {
+            const p = routes[0].createPolylines();
+            p.forEach(l => {
+              l.setOptions({ strokeColor: '#8b5cf6', strokeWeight: 5, strokeOpacity: 0.9, zIndex: 10 });
+              l.setMap(map);
+            });
+            polylinesRef.current.push(...p);
+          }
+        }).catch(console.warn)
+      );
+    }
+
     Promise.all(promises).then(() => {
       map.fitBounds(bounds, { top: 100, bottom: 150, left: 50, right: 50 });
     });
@@ -214,6 +255,11 @@ function SecureMapContent({ handshakeStatus, senderLocation }: SecureMapContentP
       {handshakeStatus === 'accepted' && legalLocation && (
         <AdvancedMarker position={legalLocation}>
           <Pin background="#10b981" glyphColor="#ffffff" borderColor="#10b981" />
+        </AdvancedMarker>
+      )}
+      {transitLocation && (
+        <AdvancedMarker position={transitLocation}>
+          <Pin background="#8b5cf6" glyphColor="#ffffff" borderColor="#8b5cf6" />
         </AdvancedMarker>
       )}
     </>
@@ -324,19 +370,22 @@ function LeafletMapFallback({ senderLocation, handshakeStatus }: LeafletMapFallb
     const userCoords: [number, number] = [senderLocation.lat, senderLocation.lng];
 
     const setupMap = async () => {
-      const [policeResult, hospitalResult, legalResult] = await Promise.all([
+      const [policeResult, hospitalResult, legalResult, transitResult] = await Promise.all([
         fetchNearestPlace('police'),
         fetchNearestPlace('hospital'),
         fetchNearestPlace('courthouse'),
+        fetchNearestPlace('bus_station'),
       ]);
 
       const policeLoc  = policeResult?.coords   ?? [senderLocation.lat + 0.0035, senderLocation.lng - 0.003] as [number, number];
       const hospitalLoc = hospitalResult?.coords ?? [senderLocation.lat - 0.0025, senderLocation.lng + 0.004] as [number, number];
       const legalLoc   = legalResult?.coords    ?? [senderLocation.lat + 0.0018, senderLocation.lng + 0.0032] as [number, number];
+      const transitLoc = transitResult?.coords  ?? [senderLocation.lat - 0.0020, senderLocation.lng - 0.0025] as [number, number];
 
       const policeName   = policeResult?.name   ?? 'Nearest Police Station';
       const hospitalName = hospitalResult?.name ?? 'Nearest Hospital';
       const legalName    = legalResult?.name    ?? 'Legal Aid Clinic';
+      const transitName  = transitResult?.name  ?? 'Transit Station';
 
       L.marker(policeLoc, { icon: createEmergencyIcon('#FF5449', 'P') })
         .bindPopup(`<div style='padding:4px 8px;font-family:sans-serif;'><b>🚔 ${policeName}</b><br/><span style='font-size:11px;color:#888;'>Police Station · Emergency Route Active</span></div>`)
@@ -352,14 +401,19 @@ function LeafletMapFallback({ senderLocation, handshakeStatus }: LeafletMapFallb
           : `<div style='padding:4px 8px;font-family:sans-serif;'><b>⚖️ ${legalName}</b><br/><span style='font-size:11px;color:#5ae9ac;'>Secure handshake established ✓</span></div>`)
         .addTo(map);
 
+      L.marker(transitLoc, { icon: createEmergencyIcon('#8b5cf6', 'T') })
+        .bindPopup(`<div style='padding:4px 8px;font-family:sans-serif;'><b>🚌 ${transitName}</b><br/><span style='font-size:11px;color:#888;'>Transit Station · Escape Route Active</span></div>`)
+        .addTo(map);
+
       // Draw real road-following routes via OSRM
       await Promise.all([
         drawRealRoute(userCoords, policeLoc, '#FF5449'),
         drawRealRoute(userCoords, hospitalLoc, '#FFBF1C'),
+        drawRealRoute(userCoords, transitLoc, '#8b5cf6'),
         ...(handshakeStatus === 'accepted' ? [drawRealRoute(userCoords, legalLoc, '#5ae9ac')] : []),
       ]);
 
-      const bounds = L.latLngBounds([userCoords, policeLoc, hospitalLoc, legalLoc]);
+      const bounds = L.latLngBounds([userCoords, policeLoc, hospitalLoc, legalLoc, transitLoc]);
       map.fitBounds(bounds, { padding: [50, 50] });
     };
 

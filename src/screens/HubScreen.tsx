@@ -8,13 +8,29 @@ const DEFAULT_LOC = { lat: 28.6139, lng: 77.2090 }; // New Delhi fallback
 
 async function getDeviceLocation(): Promise<{ lat: number; lng: number }> {
   return new Promise((resolve) => {
-    if (!navigator.geolocation) {
-      resolve(DEFAULT_LOC);
+    if (!navigator.geolocation || !navigator.onLine) {
+      const saved = localStorage.getItem('last_known_location');
+      if (saved) {
+        resolve(JSON.parse(saved));
+      } else {
+        resolve(DEFAULT_LOC);
+      }
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => resolve(DEFAULT_LOC),
+      (pos) => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        localStorage.setItem('last_known_location', JSON.stringify(loc));
+        resolve(loc);
+      },
+      () => {
+        const saved = localStorage.getItem('last_known_location');
+        if (saved) {
+          resolve(JSON.parse(saved));
+        } else {
+          resolve(DEFAULT_LOC);
+        }
+      },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     );
   });
@@ -26,8 +42,14 @@ export function HubScreen({ onAction, onNavigate }: { onAction: (signalId: strin
   const textRef = useRef<HTMLInputElement>(null);
   const [trustedContacts, setTrustedContacts] = useState<{ id: string; name: string; phone: string }[]>([]);
   const [customPhone, setCustomPhone] = useState('');
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
     const saved = localStorage.getItem('trusted_contacts');
     if (saved) {
       try {
@@ -36,10 +58,23 @@ export function HubScreen({ onAction, onNavigate }: { onAction: (signalId: strin
         console.warn('Failed to parse trusted contacts:', e);
       }
     }
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   const sendSignal = async (type: 'voice' | 'text' | 'sos', message?: string) => {
     if (isSending) return;
+
+    if (type === 'sos' || type === 'voice') {
+      if (!window.confirm("Are you sure? This will dispatch emergency services and notify your contacts. Press OK to proceed.")) {
+        if (type === 'voice') setIsRecording(false);
+        return;
+      }
+    }
+
     setIsSending(true);
     // 1. Get real GPS location immediately
     const location = await getDeviceLocation();
@@ -73,6 +108,12 @@ export function HubScreen({ onAction, onNavigate }: { onAction: (signalId: strin
 
   return (
     <div className="flex flex-col items-center justify-center px-5 max-w-screen-sm mx-auto w-full gap-8 relative z-10 pt-16 pb-8 min-h-[80vh]">
+      {isOffline && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-error/90 text-on-error text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg z-50 flex items-center gap-1.5 whitespace-nowrap">
+          <AlertTriangle size={12} />
+          OFFLINE: USING LAST LOCATION
+        </div>
+      )}
       <div className="w-full flex justify-end">
         <button
           onClick={handleVoiceToggle}
